@@ -176,6 +176,32 @@ response:
 	}
 ]
 ```
+
+### 删除包
+path:
+
+```
+/apps/:platform
+/apps/:platform/:date
+/apps/:platform/:bundleID
+/apps/:platform/:bundleID/:date
+
+```
+params:
+
+```
+:platform: ios or android
+:bundleID: app bundleID
+:date: 日期，默认是当前时间减30天
+```
+response:
+
+ ```
+{"result":"delete success"}
+{"result":"query result is null,not delete"}
+{"result":error}
+ ```
+
 # SSL 证书
 该项目默认使用自签名的证书，如果你有正规CA颁发的证书，可替换`~/.ipapk-server`目录下的证书。
 

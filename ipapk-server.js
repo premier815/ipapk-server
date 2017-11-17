@@ -14,7 +14,7 @@ var strftime = require('strftime');
 var underscore = require('underscore');
 var os = require('os');
 var multiparty = require('multiparty');
-var sqlite3 = require('sqlite3');  
+var sqlite3 = require('sqlite3');
 var uuidV4 = require('uuid/v4');
 var extract = require('ipa-extract-info');
 var apkParser3 = require("apk-parser3");
@@ -67,7 +67,7 @@ createFolderIfNeeded(ipasDir)
 createFolderIfNeeded(apksDir)
 createFolderIfNeeded(iconsDir)
 function createFolderIfNeeded (path) {
-  if (!fs.existsSync(path)) {  
+  if (!fs.existsSync(path)) {
     fs.mkdirSync(path, function (err) {
         if (err) {
             console.log(err);
@@ -260,17 +260,17 @@ function main() {
                 if (!error) {
                         console.log("delete success");
                         res.status(200);
-                        res.send("delete success");
+                        res.send({"result":"delete success"});
                     }else {
                         console.log(error);
                         res.status(500);
-                        res.send(error);
+                        res.send({"result":error});
                     }
             })
           }else {
             console.log("query result is null,not delete");
             res.status(404);
-            res.send("query result is null,not delete");
+            res.send({"result":"query result is null,not delete"});
           }
       });
   });
@@ -449,7 +449,7 @@ function extractApkIcon(filename,guid) {
 
       iconPath = iconPath.replace(/'/g,"")
       var tmpOut = iconsDir + "/{0}.png".format(guid)
-      var zip = new AdmZip(filename); 
+      var zip = new AdmZip(filename);
       var ipaEntries = zip.getEntries();
       var found = false
       ipaEntries.forEach(function(ipaEntry) {
@@ -457,8 +457,8 @@ function extractApkIcon(filename,guid) {
           var buffer = new Buffer(ipaEntry.getData());
           if (buffer.length) {
             found = true
-            fs.writeFile(tmpOut, buffer,function(err){  
-              if(err){  
+            fs.writeFile(tmpOut, buffer,function(err){
+              if(err){
                   reject(err)
               }
               resolve({"success":true})
@@ -476,7 +476,7 @@ function extractApkIcon(filename,guid) {
 function extractIpaIcon(filename,guid) {
   return new Promise(function(resolve,reject){
     var tmpOut = iconsDir + "/{0}.png".format(guid)
-    var zip = new AdmZip(filename); 
+    var zip = new AdmZip(filename);
     var ipaEntries = zip.getEntries();
     var found = false;
     ipaEntries.forEach(function(ipaEntry) {
@@ -484,15 +484,15 @@ function extractIpaIcon(filename,guid) {
         found = true;
         var buffer = new Buffer(ipaEntry.getData());
         if (buffer.length) {
-          fs.writeFile(tmpOut, buffer,function(err){  
-            if(err){  
+          fs.writeFile(tmpOut, buffer,function(err){
+            if(err){
               reject(err)
             } else {
               var execResult = exec(path.join(__dirname, 'bin','pngdefry -s _tmp ') + ' ' + tmpOut)
               if (execResult.stdout.indexOf('not an -iphone crushed PNG file') != -1) {
                 resolve({"success":true})
               } else {
-                fs.remove(tmpOut,function(err){  
+                fs.remove(tmpOut,function(err){
                   if(err){
                     reject(err)
                   } else {
