@@ -181,10 +181,10 @@ response:
 path:
 
 ```
-/apps/:platform
-/apps/:platform/:date
-/apps/:platform/:bundleID
-/apps/:platform/:bundleID/:date
+DELETE /apps/:platform
+DELETE /apps/:platform/:date
+DELETE /apps/:platform/:bundleID
+DELETE /apps/:platform/:bundleID/:date
 
 ```
 params:
