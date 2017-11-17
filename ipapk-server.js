@@ -18,8 +18,6 @@ var sqlite3 = require('sqlite3');
 var uuidV4 = require('uuid/v4');
 var extract = require('ipa-extract-info');
 var apkParser3 = require("apk-parser3");
-var url = require('url');
-//var exec = require('child_process');
 require('shelljs/global');
 
 /** 格式化输入字符串**/

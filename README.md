@@ -5,6 +5,7 @@
 * OS X
 * Ubuntu
 * CentOS 7
+* CentOS 6.5(x86_64,node-v6.2.0-linux-x64)
 * 其他平台未测试
 
 # 需要
