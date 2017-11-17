@@ -183,7 +183,7 @@ function main() {
 
   // 按平台、bundleID加日期删除历史包，默认删除30天之前的
   app.delete(['/apps/:platform', '/apps/:platform/:date', '/apps/:platform/:bundleID', '/apps/:platform/:bundleID/:date'], function(req, res, next) {
-      res.set('Access-Control-Allow-Origin','*');
+      res.set('Access-Control-Allow-Origin', '*');
       res.set('Content-Type', 'application/json');
       var nowtimeStamp = Date.parse(new Date());
       var aMonthStamp = 30 * 24 * 60 * 60 * 1000;
@@ -191,32 +191,32 @@ function main() {
       var year = deadDateStamp.getFullYear();
       var month = deadDateStamp.getMonth() + 1;
       var day = deadDateStamp.getDate();
-      if(month < 10) {
+      if (month < 10) {
           month = "0{0}".format(month);
       }
-      if(day < 10) {
+      if (day < 10) {
           day = "0{0}".format(day);
       }
 
       var date = req.params.date;
-      if(date == undefined) {
+      if (date == undefined) {
           var date = "{0}-{1}-{2}".format(year, month, day);
-      }else if(date.indexOf('.') != -1) {
+      } else if (date.indexOf('.') != -1) {
           var date = "{0}-{1}-{2}".format(year, month, day);
-      }else {
+      } else {
           var date = date;
           date = date.split('-');
-          if(date[1].length < 2 && Number(date[1]) < 10) {
+          if (date[1].length < 2 && Number(date[1]) < 10) {
               month = "0{0}".format(date[1]);
-          }else{
+          } else {
               month = "{0}".format(date[1]);
           }
-          if(date[2].length < 2 && Number(date[2]) < 10) {
+          if (date[2].length < 2 && Number(date[2]) < 10) {
               day = "0{0}".format(date[2]);
-          }else{
+          } else {
               day = "{0}".format(date[2]);
           }
-          var date = "{0}-{1}-{2}".format(year,month,day);
+          var date = "{0}-{1}-{2}".format(year, month, day);
       }
 
       if (req.params.platform === 'android' || req.params.platform === 'ios') {
@@ -224,14 +224,18 @@ function main() {
               var selSql = "select guid from info where platform=? and bundleID=? and uploadTime < ? ";
               var delSql = "delete from info where platform=? and bundleID=? and uploadTime < ? ";
               var paramsList = [req.params.platform, req.params.bundleID, date];
-          } else if( req.params.date != undefined && req.params.bundleID == undefined ) {
+          } else if (req.params.date != undefined && req.params.bundleID == undefined) {
               if (req.params.date.indexOf('.') != -1) {
                   var bundleId = req.params.date;
                   var selSql = "select guid from info where platform=? and bundleID=? and uploadTime < ? ";
                   var delSql = "delete from info where platform=? and bundleID=? and uploadTime < ? ";
                   var paramsList = [req.params.platform, bundleId, date];
+              } else {
+                  var selSql = "select guid from info where platform=? and uploadTime < ? ";
+                  var delSql = "delete from info where platform=? and uploadTime < ? ";
+                  var paramsList = [req.params.platform, date];
               }
-          }else {
+          } else {
               var selSql = "select guid from info where platform=? and uploadTime < ? ";
               var delSql = "delete from info where platform=? and uploadTime < ? ";
               var paramsList = [req.params.platform, date];
@@ -241,37 +245,34 @@ function main() {
       // 查询出要删除的包
       queryDB(selSql, paramsList, function(error,result) {
           counts = result.length;
-        if(counts != 0) {
+          if(counts != 0) {
             for (i = 0; i < result.length; i++) {
                 var guid = result[i]['guid'];
                 var cmd = 'find ' + serverDir + ' -name ' + guid + '*' + ' | xargs -r rm -f'
                 exec(cmd, {encoding: 'utf8'}, function (err, stdout, stderr) {
                     if (err) {
                         console.log(err);
-                    } else {
-                        console.log('stdout' + stdout);
                     }
                 });
             }
-        } else {
-            console.log('query is null');
-        }
-      });
-
-      excuteDB(delSql, paramsList, function(error) {
-          if (!error) {
-              if(counts != 0){
-                  console.log("delete success");
-                  res.send("delete success");
-              }else {
-                  console.log("query result is null,not delete");
-                  res.send("query result is null,not delete");
-              }
-          } else {
-              console.log(error);
-              res.send(error);
+            // 删除包
+            excuteDB(delSql, paramsList, function(error) {
+                if (!error) {
+                        console.log("delete success");
+                        res.status(200);
+                        res.send("delete success");
+                    }else {
+                        console.log(error);
+                        res.status(500);
+                        res.send(error);
+                    }
+            })
+          }else {
+            console.log("query result is null,not delete");
+            res.status(404);
+            res.send("query result is null,not delete");
           }
-      })
+      });
   });
 
   app.get('/plist/:guid', function(req, res) {
